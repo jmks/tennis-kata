@@ -1,348 +1,196 @@
-# Simple State Machine Implementation by David Andrews (k00ka)
-
-# The TennisGame class is required to provide the unchanged interface to the scoreboard.
+# Hybrid State Machine by lidlanca
 class TennisGame
 
-  def initialize(player_one_name, player_two_name)
-    @player_one = player_one_name
-    @player_two = player_two_name
-    @score = LoveLove.new
+  def initialize(player1Name, player2Name)
+
+    @player1 = {
+      "name"  => player1Name,
+      "score" => 0
+    }
+    @player2 = {
+      "name"  => player2Name,
+      "score" => 0
+    }
+
+    @players = nil
+    initilize_players_lookup()
+    
+    # @player1Name = player1Name
+    # @player2Name = player2Name
+
+    @current_state = Rally.new(self)
   end
 
-  def won_point(player_name)
-    if player_name == @player_one
-      @score = @score.player_one_won_point
+  # Create a lookup table so we can retrive player property by either name or index(1|2)
+  def initilize_players_lookup()
+    @players = {
+      1 => @player1,
+      2 => @player2,
+      @player1['name'] => @player1,
+      @player2['name'] => @player2
+    }
+  end
+  
+  # The game state is maintained in @current_state
+  # when a player score( win a point ) we invoke next() on the current state object
+  # Based on the new score, the state object will determain if it need to transition
+  # to a new state or stay on the current state.
+  def advanceState()
+    @current_state = @current_state.next
+  end
+
+  def get_player_name(player_id)
+    return get_player_by_name_or_id(player_id)['name']
+  end
+
+  def get_player_score(player_id = nil)
+    if player_id == nil
+      return @players[1]['score'],@players[2]['score'] # return multi value of both players score 
     else
-      @score = @score.player_two_won_point
+      return get_player_by_name_or_id(player_id)['score']
     end
   end
 
+  def won_point(playerName)
+    setPlayerScore(playerName, +1)
+    advanceState()
+  end
+
   def say_score
-    @score.say_score(@player_one, @player_two)
+    return @current_state.say_score
+  end
+
+  # Return a player by name or index(1 or 2)
+  def get_player_by_name_or_id(name_or_id)
+    return @players[name_or_id]
+  end
+
+  # Increment a player score
+  def setPlayerScore(player_name_or_id,number)
+    @players[player_name_or_id]['score'] += number
+  end
+
+
+  # setp1Score, setp2Score are not covered by the specs, and are not being called
+  # no point refactoring without "expected behviour" to follow
+  # p1Score, p2Score are also not being used anymore due to refactoring
+  def setp1Score(number)
+    (0..number).each do |i|
+        p1Score()
+    end
+  end
+  def setp2Score(number)
+    (0..number).each do |i|
+      p2Score()
+    end
+  end
+  def p1Score
+    # @p1points +=1
+  end
+  def p2Score
+    # @p2points +=1
+  end
+end
+
+
+class Rally 
+  def initialize(game)
+    @game = game  
+  end
+
+  def say_score()
+    score_in_words = {
+            0 => "Love",
+            1 => "Fifteen",
+            2 => "Thirty",
+            3 => "Forty"}
+
+    p1_score, p2_score = @game.get_player_score()
+
+    if p1_score == p2_score
+      score_in_words[p1_score] + "-" + "All"
+    else
+      score_in_words[p1_score] + "-" + score_in_words[p2_score]
+    end
+  end
+
+  def next()
+    p1_score, p2_score = @game.get_player_score()
+    
+    if p1_score == p2_score and p1_score >= 3
+      return Deuce.new(@game)
+    elsif  (p1_score-p2_score).abs >= 2 and (p1_score >= 4 or p2_score >= 4)
+      return Winning.new(@game)
+    else
+      return self
+    end
   end
 
 end
 
-# The rest of the file contains the states - each state leads to at most two other states.
-# We don't need to define a base-class because:
-# 1. Ruby uses duck-typing and does not require a virtual base class, and
-# 2. None of the methods has an implementation used by more than one subclass (no good choice for a default implementation).
-class LoveLove
-
-  def say_score(player_one, player_two)
-    "Love-All"
-  end
-
-  def player_one_won_point
-    FifteenLove.new
-  end
-
-  def player_two_won_point
-    LoveFifteen.new
-  end
-
-end
-
-class LoveFifteen
-
-  def say_score(player_one, player_two)
-    "Love-Fifteen"
-  end
-
-  def player_one_won_point
-    FifteenFifteen.new
-  end
-
-  def player_two_won_point
-    LoveThirty.new
-  end
-
-end
-
-class LoveThirty
-
-  def say_score(player_one, player_two)
-    "Love-Thirty"
-  end
-
-  def player_one_won_point
-    FifteenThirty.new
-  end
-
-  def player_two_won_point
-    LoveForty.new
-  end
-
-end
-
-class LoveForty
-
-  def say_score(player_one, player_two)
-    "Love-Forty"
-  end
-
-  def player_one_won_point
-    FifteenForty.new
-  end
-
-  def player_two_won_point
-    WinPlayer2.new
-  end
-
-end
-
-class FifteenLove
-
-  def say_score(player_one, player_two)
-    "Fifteen-Love"
-  end
-
-  def player_one_won_point
-    ThirtyLove.new
-  end
-
-  def player_two_won_point
-    FifteenFifteen.new
-  end
-
-end
-
-class ThirtyLove
-
-  def say_score(player_one, player_two)
-    "Thirty-Love"
-  end
-
-  def player_one_won_point
-    FortyLove.new
-  end
-
-  def player_two_won_point
-    ThirtyFifteen.new
-  end
-
-end
-
-class FortyLove
-
-  def say_score(player_one, player_two)
-    "Forty-Love"
-  end
-
-  def player_one_won_point
-    WinPlayer1.new
-  end
-
-  def player_two_won_point
-    FortyFifteen.new
-  end
-
-end
-
-class FifteenFifteen
-
-  def say_score(player_one, player_two)
-    "Fifteen-All"
-  end
-
-  def player_one_won_point
-    ThirtyFifteen.new
-  end
-
-  def player_two_won_point
-    FifteenThirty.new
-  end
-
-end
-
-class FifteenThirty
-
-  def say_score(player_one, player_two)
-    "Fifteen-Thirty"
-  end
-
-  def player_one_won_point
-    ThirtyThirty.new
-  end
-
-  def player_two_won_point
-    FifteenForty.new
-  end
-
-end
-
-class FifteenForty
-
-  def say_score(player_one, player_two)
-    "Fifteen-Forty"
-  end
-
-  def player_one_won_point
-    ThirtyForty.new
-  end
-
-  def player_two_won_point
-    WinPlayer2.new
-  end
-
-end
-
-class ThirtyFifteen
-
-  def say_score(player_one, player_two)
-    "Thirty-Fifteen"
-  end
-
-  def player_one_won_point
-    FortyFifteen.new
-  end
-
-  def player_two_won_point
-    ThirtyThirty.new
-  end
-
-end
-
-class FortyFifteen
-
-  def say_score(player_one, player_two)
-    "Forty-Fifteen"
-  end
-
-  def player_one_won_point
-    WinPlayer1.new
-  end
-
-  def player_two_won_point
-    FortyThirty.new
-  end
-
-end
-
-class ThirtyThirty
-
-  def say_score(player_one, player_two)
-    "Thirty-All"
-  end
-
-  def player_one_won_point
-    FortyThirty.new
-  end
-
-  def player_two_won_point
-    ThirtyForty.new
-  end
-
-end
-
-class ThirtyForty
-
-  def say_score(player_one, player_two)
-    "Thirty-Forty"
-  end
-
-  def player_one_won_point
-    Deuce.new
-  end
-
-  def player_two_won_point
-    WinPlayer2.new
-  end
-
-end
-
-class FortyThirty
-
-  def say_score(player_one, player_two)
-    "Forty-Thirty"
-  end
-
-  def player_one_won_point
-    WinPlayer1.new
-  end
-
-  def player_two_won_point
-    Deuce.new
-  end
-
-end
 
 class Deuce
+  def initialize(game)
+    @game = game
+  end
 
-  def say_score(player_one, player_two)
+  def say_score()
     "Deuce"
   end
 
-  def player_one_won_point
-    AdvantagePlayer1.new
+  def next()
+    p1_score,p2_score = @game.get_player_score()
+    if (p1_score-p2_score).abs == 1
+      return Advanatge.new(@game)
+    else
+      return self  
+    end
   end
-
-  def player_two_won_point
-    AdvantagePlayer2.new
-  end
-
 end
 
-class AdvantagePlayer1
 
-  def say_score(player_one, player_two)
-    "Advantage #{player_one}"
+class Advanatge 
+  def initialize(game)
+    @game = game
   end
 
-  def player_one_won_point
-    WinPlayer1.new
+  def say_score()
+    p1_score,p2_score = @game.get_player_score()
+
+    if p1_score > p2_score
+      "Advantage " + @game.get_player_name(1)
+    elsif p1_score < p2_score
+      "Advantage " + @game.get_player_name(2)
+    end
   end
 
-  def player_two_won_point
-    Deuce.new
+  def next()
+    p1_score,p2_score = @game.get_player_score()
+    if (p1_score-p2_score).abs == 2
+      return Winning.new(@game)
+    else (p1_score-p2_score).abs == 0
+      return Deuce.new(@game)
+    end
   end
-
 end
 
-class AdvantagePlayer2
 
-  def say_score(player_one, player_two)
-    "Advantage #{player_two}"
+
+class Winning 
+  def initialize(game)
+    @game = game
   end
 
-  def player_one_won_point
-    Deuce.new
+  def say_score()
+    p1_score,p2_score = @game.get_player_score()
+    if p1_score > p2_score
+      "Win for " + @game.get_player_name(1)
+    else
+      "Win for " + @game.get_player_name(2)
+    end
   end
 
-  def player_two_won_point
-    WinPlayer2.new
+  def next()
+    return self
   end
-
-end
-
-class WinPlayer1
-
-  def say_score(player_one, player_two)
-    "Win for #{player_one}"
-  end
-
-  def player_one_won_point
-    self
-  end
-
-  def player_two_won_point
-    self
-  end
-
-end
-
-class WinPlayer2
-
-  def say_score(player_one, player_two)
-    "Win for #{player_two}"
-  end
-
-  def player_one_won_point
-    self
-  end
-
-  def player_two_won_point
-    self
-  end
-
-end
+end 
