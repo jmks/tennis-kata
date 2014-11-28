@@ -12,7 +12,7 @@ class RallyState
   end
 
   def say_score
-    if @player1.points == @player2.points
+    if tied_game?
       "#{ SCORE_IN_WORDS[@player1.points] }-All"
     else
       "#{ SCORE_IN_WORDS[@player1.points] }-#{ SCORE_IN_WORDS[@player2.points] }"
@@ -20,13 +20,23 @@ class RallyState
   end
 
   def transition!(scoring_player)
-    if @player1.points == @player2.points && scoring_player.points > 2
+    if tied_game? && scoring_player.points > 2
       DeuceState.new(@player1, @player2)
-    elsif scoring_player.points >= 4 && (@player1.points - @player2.points).abs >= 2
+    elsif game_won?(scoring_player)
       DoneState.new(scoring_player)
     else
       self
     end
+  end
+
+  private
+
+  def tied_game?
+    @player1.points == @player2.points
+  end
+
+  def game_won? scoring_player
+    scoring_player.points >= 4 && (@player1.points - @player2.points).abs >= 2
   end
 end
 
