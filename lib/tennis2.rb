@@ -11,11 +11,6 @@ class TennisGame
   }
 
   def initialize(player1Name, player2Name)
-    @player1Name = player1Name
-    @player2Name = player2Name
-    @p1points = 0
-    @p2points = 0
-
     @player1 = Player.new(player1Name, 0)
     @player2 = Player.new(player2Name, 0)
   end
@@ -102,12 +97,10 @@ class TennisGame
 
   # deprecated
   def p1Score
-    @p1points += 1
     @player1.points += 1
   end
   
   def p2Score
-    @p2points +=1
     @player2.points += 1
   end
 end
