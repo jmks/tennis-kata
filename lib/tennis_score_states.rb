@@ -19,7 +19,7 @@ class RallyState
     end
   end
 
-  def transition!(scoring_player)
+  def transition(scoring_player)
     if tied_game? && scoring_player.points > 2
       DeuceState.new(@player1, @player2)
     elsif game_won?(scoring_player)
@@ -49,7 +49,7 @@ class DeuceState
     "Deuce"
   end
 
-  def transition!(scoring_player)
+  def transition(scoring_player)
     AdvantageState.new(@player1, @player2, scoring_player)
   end
 end
@@ -63,7 +63,7 @@ class AdvantageState
     "Advantage #{ @advantage_player.name }"
   end
 
-  def transition!(scoring_player)
+  def transition(scoring_player)
     if scoring_player.name == @advantage_player.name
       DoneState.new(scoring_player)
     else
@@ -81,7 +81,7 @@ class DoneState
     "Win for #{ @winning_player.name }"
   end
 
-  def transition!(scoring_player)
+  def transition(scoring_player)
     self
   end
 end
