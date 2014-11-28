@@ -1,3 +1,5 @@
+Player = Struct.new :name, :points
+
 class TennisGame
 
   SCORE_IN_WORDS = {
@@ -13,10 +15,13 @@ class TennisGame
     @player2Name = player2Name
     @p1points = 0
     @p2points = 0
+
+    @player1 = Player.new(player1Name, 0)
+    @player2 = Player.new(player2Name, 0)
   end
       
   def won_point(playerName)
-    if playerName == @player1Name
+    if playerName == @player1.name
       p1Score()
     else
       p2Score()
@@ -26,82 +31,83 @@ class TennisGame
   def say_score
     result = ""
     
-    if (@p1points == @p2points and @p1points < 3)
-      result = SCORE_IN_WORDS[@p1points] + "-All"
+    if @player1.points == @player2.points && @player1.points < 3
+      result = SCORE_IN_WORDS[@player1.points] + "-All"
     end
-    if (@p1points==@p2points and @p1points>2)
+    
+    if @player1.points == @player2.points && @player1.points > 2
         result = "Deuce"
     end
     
     p1res = p2res = "Love"
-    if (@p1points > 0 and @p2points==0)
+    if @player1.points > 0 && @player2.points.zero?
       # p1res needed below (overlapping conditions)
-      p1res = SCORE_IN_WORDS[@p1points]
-      result = p1res + "-Love"
+      p1res = SCORE_IN_WORDS[@player1.points]
+      result = p1res + "-" + p2res
     end
 
-    if (@p2points > 0 and @p1points==0)
-      p2res = SCORE_IN_WORDS[@p2points]
+    if @player2.points > 0 && @player1.points.zero?
+      p2res = SCORE_IN_WORDS[@player2.points]
       result = p1res + "-" + p2res
     end
     
-    if (@p1points>@p2points and @p1points < 4)
-      if [2, 3].include? @p1points
-        p1res = SCORE_IN_WORDS[@p1points]
+    if @player1.points > @player2.points && @player1.points < 4
+      if [2, 3].include? @player1.points
+        p1res = SCORE_IN_WORDS[@player1.points]
       end
 
-      if [1,2].include? @p2points
-        p2res = SCORE_IN_WORDS[@p2points]
+      if [1,2].include? @player2.points
+        p2res = SCORE_IN_WORDS[@player2.points]
       end
       
       result = p1res + "-" + p2res
     end
 
-    if (@p2points>@p1points and @p2points < 4)
-      if [2, 3].include? @p2points
-        p2res = SCORE_IN_WORDS[@p2points]
+    if @player2.points > @player1.points && @player2.points < 4
+      if [2, 3].include? @player2.points
+        p2res = SCORE_IN_WORDS[@player2.points]
       end
 
-      if [1,2].include? @p1points
-        p1res = SCORE_IN_WORDS[@p1points]
+      if [1,2].include? @player1.points
+        p1res = SCORE_IN_WORDS[@player1.points]
       end
 
       result = p1res + "-" + p2res
     end
 
-    if (@p1points > @p2points and @p2points >= 3)
-      result = "Advantage " + @player1Name
+    if @player1.points > @player2.points && @player2.points >= 3
+      result = "Advantage " + @player1.name
     end
-    if (@p2points > @p1points and @p1points >= 3)
-      result = "Advantage " + @player2Name
+    if @player2.points > @player1.points && @player1.points >= 3
+      result = "Advantage " + @player2.name
     end
-    if (@p1points>=4 and @p2points>=0 and (@p1points-@p2points)>=2)
-      result = "Win for " + @player1Name
+
+    if @player1.points >= 4 && @player2.points >= 0 && (@player1.points - @player2.points) >= 2
+      result = "Win for " + @player1.name
     end
-    if (@p2points>=4 and @p1points>=0 and (@p2points-@p1points)>=2)
-      result = "Win for " + @player2Name
+    if @player2.points >= 4 && @player1.points>=0 && (@player2.points - @player1.points) >= 2
+      result = "Win for " + @player2.name
     end
 
     result
   end
 
   def setp1Score(number)
-    (0..number).each do |i|
-        p1Score()
-    end
+    number.times { p1Score }
   end
 
   def setp2Score(number)
-    (0..number).each do |i|
-      p2Score()
-    end
+    number.times { p2Score }
   end
 
+  # deprecated
   def p1Score
-    @p1points +=1
+    @p1points += 1
+    @player1.points += 1
   end
   
   def p2Score
     @p2points +=1
+    @player2.points += 1
   end
 end
