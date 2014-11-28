@@ -1,5 +1,13 @@
 class TennisGame
 
+  SCORE_IN_WORDS = {
+    0 => "Love",
+    1 => "Fifteen",
+    2 => "Thirty",
+    3 => "Forty",
+    4 => "" # placeholder
+  }
+
   def initialize(player1Name, player2Name)
     @player1Name = player1Name
     @player2Name = player2Name
@@ -17,82 +25,50 @@ class TennisGame
 
   def say_score
     result = ""
+    
     if (@p1points == @p2points and @p1points < 3)
-      if (@p1points==0)
-        result = "Love"
-      end
-      if (@p1points==1)
-        result = "Fifteen"
-      end
-      if (@p1points==2)
-        result = "Thirty"
-      end
-      result += "-All"
+      result = SCORE_IN_WORDS[@p1points] + "-All"
     end
     if (@p1points==@p2points and @p1points>2)
         result = "Deuce"
     end
     
-    p1res = ""
-    p2res = ""
+    p1res = p2res = "Love"
     if (@p1points > 0 and @p2points==0)
-      if (@p1points==1)
-        p1res = "Fifteen"
-      end
-      if (@p1points==2)
-        p1res = "Thirty"
-      end
-      if (@p1points==3)
-        p1res = "Forty"
-      end
-      p2res = "Love"
-      result = p1res + "-" + p2res
+      # p1res needed below (overlapping conditions)
+      p1res = SCORE_IN_WORDS[@p1points]
+      result = p1res + "-Love"
     end
+
     if (@p2points > 0 and @p1points==0)
-      if (@p2points==1)
-        p2res = "Fifteen"
-      end
-      if (@p2points==2)
-        p2res = "Thirty"
-      end
-      if (@p2points==3)
-        p2res = "Forty"
-      end
-      
-      p1res = "Love"
+      p2res = SCORE_IN_WORDS[@p2points]
       result = p1res + "-" + p2res
     end
     
     if (@p1points>@p2points and @p1points < 4)
-      if (@p1points==2)
-        p1res="Thirty"
+      if [2, 3].include? @p1points
+        p1res = SCORE_IN_WORDS[@p1points]
       end
-      if (@p1points==3)
-        p1res="Forty"
+
+      if [1,2].include? @p2points
+        p2res = SCORE_IN_WORDS[@p2points]
       end
-      if (@p2points==1)
-        p2res="Fifteen"
-      end
-      if (@p2points==2)
-        p2res="Thirty"
-      end
+      
       result = p1res + "-" + p2res
     end
+
     if (@p2points>@p1points and @p2points < 4)
-      if (@p2points==2)
-        p2res="Thirty"
+      if [2, 3].include? @p2points
+        p2res = SCORE_IN_WORDS[@p2points]
       end
-      if (@p2points==3)
-        p2res="Forty"
+
+      if [1,2].include? @p1points
+        p1res = SCORE_IN_WORDS[@p1points]
       end
-      if (@p1points==1)
-        p1res="Fifteen"
-      end
-      if (@p1points==2)
-        p1res="Thirty"
-      end
+
       result = p1res + "-" + p2res
     end
+
     if (@p1points > @p2points and @p2points >= 3)
       result = "Advantage " + @player1Name
     end
@@ -105,6 +81,7 @@ class TennisGame
     if (@p2points>=4 and @p1points>=0 and (@p2points-@p1points)>=2)
       result = "Win for " + @player2Name
     end
+
     result
   end
 
