@@ -11,25 +11,20 @@ class TennisGame
   end
       
   def won_point(playerName)
-    if playerName == @player1.name
-      p1Score()
-      @state = @state.won_point(@player1)
-    else
-      p2Score()
-      @state = @state.won_point(@player2)
-    end
+    # TODO small CQS issue?
+    @state = @state.won_point(playerName)
   end
 
   def say_score
     @state.say_score
   end
 
-  def setp1Score(number)
-    number.times { p1Score }
+  def setp1Score(score)
+    score.times { p1Score }
   end
 
-  def setp2Score(number)
-    number.times { p2Score }
+  def setp2Score(score)
+    score.times { p2Score }
   end
 
   def p1Score

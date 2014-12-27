@@ -2,6 +2,16 @@ class TennisScoreState
   def initialize(player1, player2)
     @player1, @player2 = player1, player2
   end
+
+  def won_point(playerName)
+    player_by_name(playerName).points += 1
+  end
+
+  protected
+
+  def player_by_name(playerName)
+    @player1.name == playerName ? @player1 : @player2
+  end
 end
 
 class RallyState < TennisScoreState
@@ -21,7 +31,10 @@ class RallyState < TennisScoreState
     end
   end
 
-  def won_point(scoring_player)
+  def won_point(playerName)
+    super
+    scoring_player = player_by_name(playerName)
+
     if tied_game? && scoring_player.points > 2
       DeuceState.new(@player1, @player2)
     elsif game_won?(scoring_player)
@@ -47,8 +60,9 @@ class DeuceState < TennisScoreState
     "Deuce"
   end
 
-  def won_point(scoring_player)
-    AdvantageState.new(@player1, @player2, scoring_player)
+  def won_point(playerName)
+    super
+    AdvantageState.new(@player1, @player2, player_by_name(playerName))
   end
 end
 
@@ -62,7 +76,10 @@ class AdvantageState < TennisScoreState
     "Advantage #{ @advantage_player.name }"
   end
 
-  def won_point(scoring_player)
+  def won_point(playerName)
+    super
+    scoring_player = player_by_name(playerName)
+
     if scoring_player.name == @advantage_player.name
       DoneState.new(@player1, @player2, scoring_player)
     else
@@ -81,7 +98,7 @@ class DoneState < TennisScoreState
     "Win for #{ @winning_player.name }"
   end
 
-  def won_point(scoring_player)
+  def won_point(playerName)
     self
   end
 end
