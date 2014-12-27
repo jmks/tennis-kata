@@ -1,5 +1,12 @@
 class TennisGame
 
+  SCORE_IN_WORDS = {
+    0 => "Love",
+    1 => "Fifteen",
+    2 => "Thirty",
+    3 => "Forty"
+  }
+
   def initialize(player1Name, player2Name)
     @player1Name = player1Name
     @player2Name = player2Name
@@ -16,8 +23,9 @@ class TennisGame
   end
   
   def say_score
-    result = ""
-    tempScore=0
+    result    = ""
+    tempScore = 0
+
     if (@p1points==@p2points)
       result = {
           0 => "Love-All",
@@ -36,21 +44,9 @@ class TennisGame
         result ="Win for " + @player2Name
       end
     else
-      (1...3).each do |i|
-        if (i==1)
-          tempScore = @p1points
-        else
-          result+="-"
-          tempScore = @p2points
-        end
-        result += {
-            0 => "Love",
-            1 => "Fifteen",
-            2 => "Thirty",
-            3 => "Forty",
-        }[tempScore]
-      end
+      result = "#{SCORE_IN_WORDS[@p1points]}-#{SCORE_IN_WORDS[@p2points]}"
     end
+    
     result
   end
 end
