@@ -21,40 +21,25 @@ class TennisGame
   end
   
   def say_score
-    result    = ""
-    tempScore = 0
-
     if tie_game?
-      result = if @player1Points >= 3
-        "Deuce"
-      else
-        "#{SCORE_IN_WORDS[@player1Points]}-All"
-      end
+      deuce? ? "Deuce" : "#{SCORE_IN_WORDS[@player1Points]}-All"
     elsif advantage?
-      minusResult = @player1Points-@player2Points
-      if (minusResult==1)
-        result ="Advantage " + @player1Name
-      elsif (minusResult ==-1)
-        result ="Advantage " + @player2Name
-      end
+      "Advantage #{leading_player_name}"
     elsif game_over?
-      minusResult = @player1Points-@player2Points
-      if (minusResult>=2)
-        result = "Win for " + @player1Name
-      else
-        result ="Win for " + @player2Name
-      end
+      "Win for #{leading_player_name}"
     else
-      result = "#{SCORE_IN_WORDS[@player1Points]}-#{SCORE_IN_WORDS[@player2Points]}"
+      "#{SCORE_IN_WORDS[@player1Points]}-#{SCORE_IN_WORDS[@player2Points]}"
     end
-
-    result
   end
 
   private
 
   def tie_game?
     @player1Points == @player2Points
+  end
+
+  def deuce?
+    tie_game? && @player1Points >= 3
   end
 
   def advantage?
@@ -71,5 +56,15 @@ class TennisGame
 
   def score_diff
     (@player1Points - @player2Points).abs
+  end
+
+  def leading_player_name
+    if @player1Points > @player2Points
+      @player1Name
+    elsif @player1Points < @player2Points
+      @player2Name
+    else
+      nil
+    end
   end
 end
