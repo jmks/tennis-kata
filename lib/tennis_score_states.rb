@@ -1,4 +1,10 @@
-class RallyState
+class TennisScoreState
+  def initialize(player1, player2)
+    @player1, @player2 = player1, player2
+  end
+end
+
+class RallyState < TennisScoreState
 
   SCORE_IN_WORDS = {
     0 => "Love",
@@ -8,7 +14,7 @@ class RallyState
   }
 
   def initialize(player1, player2)
-    @player1, @player2 = player1, player2
+    super
   end
 
   def say_score
@@ -23,7 +29,7 @@ class RallyState
     if tied_game? && scoring_player.points > 2
       DeuceState.new(@player1, @player2)
     elsif game_won?(scoring_player)
-      DoneState.new(scoring_player)
+      DoneState.new(@player1, @player2, scoring_player)
     else
       self
     end
@@ -40,9 +46,9 @@ class RallyState
   end
 end
 
-class DeuceState
+class DeuceState < TennisScoreState
   def initialize(player1, player2)
-    @player1, @player2 = player1, player2
+    super
   end
 
   def say_score
@@ -54,9 +60,10 @@ class DeuceState
   end
 end
 
-class AdvantageState
+class AdvantageState < TennisScoreState
   def initialize(player1, player2, advantage_player)
-    @player1, @player2, @advantage_player = player1, player2, advantage_player
+    super(player1, player2)
+    @advantage_player = advantage_player
   end
 
   def say_score
@@ -65,15 +72,16 @@ class AdvantageState
 
   def transition(scoring_player)
     if scoring_player.name == @advantage_player.name
-      DoneState.new(scoring_player)
+      DoneState.new(@player1, @player2, scoring_player)
     else
       DeuceState.new(@player1, @player2)
     end
   end
 end
 
-class DoneState
-  def initialize(winning_player)
+class DoneState < TennisScoreState
+  def initialize(player1, player2, winning_player)
+    super(player1, player2)
     @winning_player = winning_player
   end
 
