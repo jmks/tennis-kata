@@ -8,10 +8,8 @@ class TennisGame
   }
 
   def initialize(player1Name, player2Name)
-    @player1Name = player1Name
-    @player2Name = player2Name
-    @p1points = 0
-    @p2points = 0
+    @player1Name, @player2Name = player1Name, player2Name
+    @p1points = @p2points = 0
   end
         
   def won_point(playerName)
@@ -26,19 +24,22 @@ class TennisGame
     result    = ""
     tempScore = 0
 
-    if (@p1points==@p2points)
-      result = {
-          0 => "Love-All",
-          1 => "Fifteen-All",
-          2 => "Thirty-All",
-      }.fetch(@p1points, "Deuce")
-    elsif (@p1points>=4 or @p2points>=4)
+    if tie_game?
+      result = if @p1points >= 3
+        "Deuce"
+      else
+        "#{SCORE_IN_WORDS[@p1points]}-All"
+      end
+    elsif advantage?
       minusResult = @p1points-@p2points
       if (minusResult==1)
         result ="Advantage " + @player1Name
       elsif (minusResult ==-1)
         result ="Advantage " + @player2Name
-      elsif (minusResult>=2)
+      end
+    elsif game_over?
+      minusResult = @p1points-@p2points
+      if (minusResult>=2)
         result = "Win for " + @player1Name
       else
         result ="Win for " + @player2Name
@@ -46,7 +47,29 @@ class TennisGame
     else
       result = "#{SCORE_IN_WORDS[@p1points]}-#{SCORE_IN_WORDS[@p2points]}"
     end
-    
+
     result
+  end
+
+  private
+
+  def tie_game?
+    @p1points == @p2points
+  end
+
+  def advantage?
+    endgame? && score_diff == 1
+  end
+
+  def game_over?
+    endgame? && score_diff >= 2
+  end
+
+  def endgame?
+    [@p1points, @p2points].any? {|score| score >= 4}
+  end
+
+  def score_diff
+    (@p1points-@p2points).abs
   end
 end
