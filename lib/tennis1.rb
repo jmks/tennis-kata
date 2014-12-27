@@ -9,14 +9,14 @@ class TennisGame
 
   def initialize(player1Name, player2Name)
     @player1Name, @player2Name = player1Name, player2Name
-    @p1points = @p2points = 0
+    @player1Points = @player2Points = 0
   end
         
   def won_point(playerName)
     if playerName == @player1Name
-      @p1points += 1
+      @player1Points += 1
     else
-      @p2points += 1
+      @player2Points += 1
     end
   end
   
@@ -25,27 +25,27 @@ class TennisGame
     tempScore = 0
 
     if tie_game?
-      result = if @p1points >= 3
+      result = if @player1Points >= 3
         "Deuce"
       else
-        "#{SCORE_IN_WORDS[@p1points]}-All"
+        "#{SCORE_IN_WORDS[@player1Points]}-All"
       end
     elsif advantage?
-      minusResult = @p1points-@p2points
+      minusResult = @player1Points-@player2Points
       if (minusResult==1)
         result ="Advantage " + @player1Name
       elsif (minusResult ==-1)
         result ="Advantage " + @player2Name
       end
     elsif game_over?
-      minusResult = @p1points-@p2points
+      minusResult = @player1Points-@player2Points
       if (minusResult>=2)
         result = "Win for " + @player1Name
       else
         result ="Win for " + @player2Name
       end
     else
-      result = "#{SCORE_IN_WORDS[@p1points]}-#{SCORE_IN_WORDS[@p2points]}"
+      result = "#{SCORE_IN_WORDS[@player1Points]}-#{SCORE_IN_WORDS[@player2Points]}"
     end
 
     result
@@ -54,7 +54,7 @@ class TennisGame
   private
 
   def tie_game?
-    @p1points == @p2points
+    @player1Points == @player2Points
   end
 
   def advantage?
@@ -66,10 +66,10 @@ class TennisGame
   end
 
   def endgame?
-    [@p1points, @p2points].any? {|score| score >= 4}
+    [@player1Points, @player2Points].any? {|score| score >= 4}
   end
 
   def score_diff
-    (@p1points-@p2points).abs
+    (@player1Points - @player2Points).abs
   end
 end
