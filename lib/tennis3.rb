@@ -1,4 +1,6 @@
 class TennisGame
+  
+  attr_reader :player1_name, :player2_name, :player1_score, :player2_score
 
   def initialize(player1Name, player2Name)
     @player1_name  = player1Name
