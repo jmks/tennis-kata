@@ -13,10 +13,10 @@ class TennisGame
   def won_point(playerName)
     if playerName == @player1.name
       p1Score()
-      @state = @state.transition(@player1)
+      @state = @state.won_point(@player1)
     else
       p2Score()
-      @state = @state.transition(@player2)
+      @state = @state.won_point(@player2)
     end
   end
 

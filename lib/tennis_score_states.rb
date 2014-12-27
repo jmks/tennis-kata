@@ -13,10 +13,6 @@ class RallyState < TennisScoreState
     3 => "Forty"
   }
 
-  def initialize(player1, player2)
-    super
-  end
-
   def say_score
     if tied_game?
       "#{ SCORE_IN_WORDS[@player1.points] }-All"
@@ -25,7 +21,7 @@ class RallyState < TennisScoreState
     end
   end
 
-  def transition(scoring_player)
+  def won_point(scoring_player)
     if tied_game? && scoring_player.points > 2
       DeuceState.new(@player1, @player2)
     elsif game_won?(scoring_player)
@@ -47,15 +43,11 @@ class RallyState < TennisScoreState
 end
 
 class DeuceState < TennisScoreState
-  def initialize(player1, player2)
-    super
-  end
-
   def say_score
     "Deuce"
   end
 
-  def transition(scoring_player)
+  def won_point(scoring_player)
     AdvantageState.new(@player1, @player2, scoring_player)
   end
 end
@@ -70,7 +62,7 @@ class AdvantageState < TennisScoreState
     "Advantage #{ @advantage_player.name }"
   end
 
-  def transition(scoring_player)
+  def won_point(scoring_player)
     if scoring_player.name == @advantage_player.name
       DoneState.new(@player1, @player2, scoring_player)
     else
@@ -89,7 +81,7 @@ class DoneState < TennisScoreState
     "Win for #{ @winning_player.name }"
   end
 
-  def transition(scoring_player)
+  def won_point(scoring_player)
     self
   end
 end
